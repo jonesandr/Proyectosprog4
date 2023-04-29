@@ -1,113 +1,111 @@
-
 import sqlite3
 
-diccionario = "diccionario.db"
+dictionary_db = "dictionary.db"
 
 
-def obtener_conexion():
-    return sqlite3.connect(diccionario)
+def get_connection():
+    return sqlite3.connect(dictionary_db)
 
 
-def crear_tablas():
-    tablas = [
+def create_tables():
+    tables = [
         """
-        CREATE TABLE IF NOT EXISTS diccionario(
+        CREATE TABLE IF NOT EXISTS dictionary(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            palabra TEXT NOT NULL,
-            significado TEXT NOT NULL
+            word TEXT NOT NULL,
+            meaning TEXT NOT NULL
         );
         """
     ]
-    conexion = obtener_conexion()
-    cursor = conexion.cursor()
-    for tabla in tablas:
-        cursor.execute(tabla)
+    connection = get_connection()
+    cursor = connection.cursor()
+    for table in tables:
+        cursor.execute(table)
 
 
-def principal():
-    crear_tablas()
+def main():
+    create_tables()
     menu = """
-a) Agregar nueva palabra
-b) Editar palabra existente
-c) Eliminar palabra existente
-d) Ver listado de palabras
-e) Buscar significado de palabra
-f) Salir
-Elige: """
-    eleccion = ""
-    while eleccion != "f":
-        eleccion = input(menu)
-        if eleccion == "a":
-            palabra = input("Ingresa la palabra: ")
-            posible_significado = buscar_significado_palabra(palabra)
-            if posible_significado:
-                print(f"La palabra '{palabra}' ya existe")
+a) Add a new word
+b) Edit existing word
+c) Delete existing word
+d) View word list
+e) Search for word meaning
+f) Quit
+Choose: """
+    choice = ""
+    while choice != "f":
+        choice = input(menu)
+        if choice == "a":
+            word = input("Enter the word: ")
+            possible_meaning = search_word_meaning(word)
+            if possible_meaning:
+                print(f"The word '{word}' already exists")
             else:
-                significado = input("Ingresa el significado: ")
-                agregar_palabra(palabra, significado)
-                print("Palabra agregada")
-        if eleccion == "b":
-            palabra = input("Ingresa la palabra que quieres editar: ")
-            nuevo_significado = input("Ingresa el nuevo significado: ")
-            editar_palabra(palabra, nuevo_significado)
-            print("Palabra actualizada")
-        if eleccion == "c":
-            palabra = input("Ingresa la palabra a eliminar: ")
-            eliminar_palabra(palabra)
-        if eleccion == "d":
-            palabras = obtener_palabras()
-            print("=== Lista de palabras ===")
-            for palabra in palabras:
-                print(palabra[0])
-        if eleccion == "e":
-            palabra = input(
-                "Ingresa la palabra de la cual quieres saber el significado: ")
-            significado = buscar_significado_palabra(palabra)
-            if significado:
-                print(f"El significado de '{palabra}' es:\n{significado[0]}")
+                meaning = input("Enter the meaning: ")
+                add_word(word, meaning)
+                print("Word added")
+        if choice == "b":
+            word = input("Enter the word to edit: ")
+            new_meaning = input("Enter the new meaning: ")
+            edit_word(word, new_meaning)
+            print("Word updated")
+        if choice == "c":
+            word = input("Enter the word to delete: ")
+            delete_word(word)
+        if choice == "d":
+            words = get_words()
+            print("=== Word list ===")
+            for word in words:
+                print(word[0])
+        if choice == "e":
+            word = input("Enter the word to search meaning for: ")
+            meaning = search_word_meaning(word)
+            if meaning:
+                print(f"The meaning of '{word}' is:\n{meaning[0]}")
             else:
-                print(f"Palabra '{palabra}' no encontrada")
+                print(f"Word '{word}' not found")
 
 
-def agregar_palabra(palabra, significado):
-    conexion = obtener_conexion()
-    cursor = conexion.cursor()
-    sentencia = "INSERT INTO diccionario(palabra, significado) VALUES (?, ?)"
-    cursor.execute(sentencia, [palabra, significado])
-    conexion.commit()
+def add_word(word, meaning):
+    connection = get_connection()
+    cursor = connection.cursor()
+    statement = "INSERT INTO dictionary(word, meaning) VALUES (?, ?)"
+    cursor.execute(statement, [word, meaning])
+    connection.commit()
 
 
-def editar_palabra(palabra, nuevo_significado):
-    conexion = obtener_conexion()
-    cursor = conexion.cursor()
-    sentencia = "UPDATE diccionario SET significado = ? WHERE palabra = ?"
-    cursor.execute(sentencia, [nuevo_significado, palabra])
-    conexion.commit()
+def edit_word(word, new_meaning):
+    connection = get_connection()
+    cursor = connection.cursor()
+    statement = "UPDATE dictionary SET meaning = ? WHERE word = ?"
+    cursor.execute(statement, [new_meaning, word])
+    connection.commit()
 
 
-def eliminar_palabra(palabra):
-    conexion = obtener_conexion()
-    cursor = conexion.cursor()
-    sentencia = "DELETE FROM diccionario WHERE palabra = ?"
-    cursor.execute(sentencia, [palabra])
-    conexion.commit()
+def delete_word(word):
+    connection = get_connection()
+    cursor = connection.cursor()
+    statement = "DELETE FROM dictionary WHERE word = ?"
+    cursor.execute(statement, [word])
+    connection.commit()
 
 
-def obtener_palabras():
-    conexion = obtener_conexion()
-    cursor = conexion.cursor()
-    consulta = "SELECT palabra FROM diccionario"
-    cursor.execute(consulta)
+def get_words():
+    connection = get_connection()
+    cursor = connection.cursor()
+    query = "SELECT word FROM dictionary"
+    cursor.execute(query)
     return cursor.fetchall()
 
 
-def buscar_significado_palabra(palabra):
-    conexion = obtener_conexion()
-    cursor = conexion.cursor()
-    consulta = "SELECT significado FROM diccionario WHERE palabra = ?"
-    cursor.execute(consulta, [palabra])
+def search_word_meaning(word):
+    connection = get_connection()
+    cursor = connection.cursor()
+    query = "SELECT meaning FROM dictionary WHERE word = ?"
+    cursor.execute(query, [word])
     return cursor.fetchone()
 
 
 if __name__ == '__main__':
-    principal()
+    main()
